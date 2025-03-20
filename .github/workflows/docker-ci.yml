@@ -22,18 +22,22 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      # 3. Gradle 빌드
+      # 3. Gradle 실행 권한 부여
+      - name: Grant execute permission for gradlew
+        run: chmod +x ./gradlew
+
+      # 4. Gradle 빌드
       - name: Build with Gradle
         run: ./gradlew clean build
 
-      # 4. Docker 로그인 (GitHub Secrets 사용)
+      # 5. Docker 로그인 (GitHub Secrets 사용)
       - name: Log in to Docker Hub
         run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
-      # 5. Docker 이미지 빌드
+      # 6. Docker 이미지 빌드
       - name: Build Docker image
         run: docker build -t jinyeonseok/gear4camp:latest .
 
-      # 6. Docker 이미지 푸시
+      # 7. Docker 이미지 푸시
       - name: Push Docker image
         run: docker push jinyeonseok/gear4camp:latest
