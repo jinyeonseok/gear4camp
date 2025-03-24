@@ -1,0 +1,29 @@
+services:  # 여러 컨테이너를 정의하는 블록
+  mysql:  # MySQL 서비스 정의
+    image: mysql:8.0  # 사용할 Docker 이미지
+    container_name: mysql-container  # 컨테이너 이름
+    ports:
+      - "3307:3306"  # 호스트:컨테이너 포트
+    environment:  # 환경 변수 설정
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: gear4camp  # 기본 생성할 데이터베이스 이름
+    volumes:
+      - mysql_data:/var/lib/mysql  # 볼륨 마운트 설정
+    networks:
+      - my-network  # 네트워크 그룹
+
+  app:  # 애플리케이션 컨테이너
+    build: .  # 현재 디렉토리에서 Dockerfile을 빌드
+    ports:
+      - "8080:8080"  # 애플리케이션 포트
+    depends_on:
+      - mysql  # MySQL이 먼저 실행되도록 설정
+    networks:
+      - my-network  # 네트워크 그룹
+
+networks:  # 네트워크 정의
+  my-network:
+    driver: bridge  # 네트워크 드라이버
+
+volumes:
+  mysql_data:  # 볼륨 설정
