@@ -11,13 +11,18 @@ services:  # 여러 컨테이너를 정의하는 블록
       - mysql_data:/var/lib/mysql  # 볼륨 마운트 설정
     networks:
       - my-network  # 네트워크 그룹
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
+      interval: 10s
+      retries: 5
 
   app:  # 애플리케이션 컨테이너
     build: .  # 현재 디렉토리에서 Dockerfile을 빌드
     ports:
       - "8080:8080"  # 애플리케이션 포트
     depends_on:
-      - mysql  # MySQL이 먼저 실행되도록 설정
+      mysql: # MySQL이 먼저 실행되도록 설정
+        condition: service_healthy
     networks:
       - my-network  # 네트워크 그룹
 
