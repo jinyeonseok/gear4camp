@@ -7,5 +7,8 @@ WORKDIR /app
 # 3. 빌드된 JAR 파일 복사
 COPY build/libs/*.jar app.jar
 
-# 4. 애플리케이션 실행
+# 4. Gradle 빌드를 미리 수행
+RUN ./gradlew clean build
+
+# 5. 애플리케이션 실행
 ENTRYPOINT ["java", "-jar", "app.jar"]
