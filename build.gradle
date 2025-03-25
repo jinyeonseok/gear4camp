@@ -44,4 +44,3 @@ tasks.named('test') {
 	useJUnitPlatform()
 	systemProperty "spring.profiles.active", "test"  // 테스트 실행 시 test 프로파일 활성화
 }
-
