@@ -13,13 +13,23 @@ services:
       timeout: 5s
       retries: 5
     networks:
-      - my-network
+      - test-network  # 네트워크 이름 수정
     volumes:
       - mysql_test_data:/var/lib/mysql
 
-networks:
-  my-network:
+  app-test:
+    build:
+      context: .
+    container_name: spring-app-test
+    depends_on:
+      mysql-test:
+        condition: service_healthy
+    networks:
+      - test-network
+
+networks:  # 네트워크 정의
+  test-network:
     driver: bridge
 
 volumes:
-  mysql_test_data:
+  mysql_test_data:  # 볼륨 설정
