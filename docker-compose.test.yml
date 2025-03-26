@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   mysql-test:
     image: mysql:8.0
@@ -28,6 +26,8 @@ services:
         condition: service_healthy
     networks:
       - test-network
+    environment:
+      SPRING_PROFILES_ACTIVE: test
 
 networks:
   test-network:
