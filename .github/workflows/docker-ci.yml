@@ -30,21 +30,17 @@ jobs:
       - name: Install Docker Compose
         run: sudo apt-get update && sudo apt-get install -y docker-compose
 
-      # 5. Docker Compose로 모든 서비스 시작
-      - name: Start services
+      # 5. 테스트용 MySQL 컨테이너 실행
+      - name: Start MySQL for testing
         run: docker-compose -f docker-compose.test.yml up -d
 
       # 6. MySQL 준비 대기
       - name: Wait for MySQL
         run: sleep 20
 
-#      # 7. Gradle 빌드 및 테스트
-#      - name: Build and Test with Gradle
-#        run: ./gradlew clean build
-
-      # 7. Gradle 테스트 수행 (테스트 전용)
-      - name: Run tests inside Docker
-        run: docker exec spring-app-test ./gradlew clean test
+      # 7. Gradle 빌드 및 테스트
+      - name: Build and Test with Gradle
+        run: ./gradlew clean build
 
       # 8. Docker 로그인
       - name: Log in to Docker Hub

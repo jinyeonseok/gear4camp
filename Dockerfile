@@ -9,14 +9,12 @@ COPY gradlew .
 COPY gradle gradle
 RUN chmod +x ./gradlew
 
-# 4. 소스 코드 복사
+# 4. Gradle 빌드 수행
 COPY . .
+RUN ./gradlew clean build
 
-# 5. Gradle 빌드 수행
-RUN ./gradlew clean build -x test
-
-# 6. 빌드된 JAR 파일 복사
+# 5. 빌드된 JAR 파일 복사
 COPY build/libs/*.jar app.jar
 
-# 7. 애플리케이션 실행
+# 6. 애플리케이션 실행
 ENTRYPOINT ["java", "-jar", "app.jar"]
