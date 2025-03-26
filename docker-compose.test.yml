@@ -26,6 +26,8 @@ services:
         condition: service_healthy
     networks:
       - test-network
+    environment:
+      SPRING_PROFILES_ACTIVE: test
 
 networks:
   test-network:
