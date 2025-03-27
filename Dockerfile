@@ -5,7 +5,7 @@ FROM openjdk:17-jdk-alpine
 WORKDIR /app
 
 # 3. Gradle Wrapper 권한 부여
-COPY gradlew .
+COPY gradlew ./
 COPY gradle gradle
 RUN chmod +x ./gradlew
 
