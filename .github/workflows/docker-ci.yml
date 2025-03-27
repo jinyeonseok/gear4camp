@@ -46,7 +46,7 @@ jobs:
       - name: Run tests inside Docker
         run: docker exec spring-app-test ./gradlew clean test
 
-      # 8. Docker 로그인
+      # 8. Docker 로그인(구글연동으로 가입하면 로그인 인식을 못해서 도커 비밀번호를 구글 비밀번호로 다시 변경하니 인식..)
       - name: Log in to Docker Hub
         run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
