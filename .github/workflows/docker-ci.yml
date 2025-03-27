@@ -26,6 +26,10 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x ./gradlew
 
+      # gradle 빌드만(test는 진행 x)
+      - name : gralde build with test
+        run : ./gradlew clean build -x test
+
       # 4. Docker Compose 설치
       - name: Install Docker Compose
         run: sudo apt-get update && sudo apt-get install -y docker-compose
