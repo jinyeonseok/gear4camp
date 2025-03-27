@@ -12,7 +12,7 @@ RUN chmod +x ./gradlew
 # 4. 소스 코드 복사
 COPY . .
 
-# 5. Gradle 빌드 수행 (테스트 제외)
+# Gradle 빌드 수행 (테스트 제외)
 # RUN ./gradlew clean build -x test
 
 # 6. 빌드된 JAR 파일 복사
