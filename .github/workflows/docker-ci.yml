@@ -10,6 +10,9 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    env:
+      SPRING_PROFILES_ACTIVE: docker
+      
     steps:
       # 1. 코드 체크아웃
       - name: Checkout code
