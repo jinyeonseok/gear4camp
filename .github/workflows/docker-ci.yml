@@ -14,18 +14,18 @@ jobs:
       SPRING_PROFILES_ACTIVE: docker
       
     steps:
-      # 1. 코드 체크아웃
+      # 코드 체크아웃
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # 2. JDK 17 설치
+      # JDK 17 설치
       - name: Set up JDK 17
         uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
           java-version: '17'
 
-      # 3. Gradle 권한 설정
+      # Gradle 권한 설정
       - name: Grant execute permission for gradlew
         run: chmod +x ./gradlew
 
@@ -33,11 +33,15 @@ jobs:
       - name : gralde build with test
         run : ./gradlew clean build -x test
 
-      # 4. Docker Compose 설치
+      # Docker Compose 설치
       - name: Install Docker Compose
         run: sudo apt-get update && sudo apt-get install -y docker-compose
 
-      # 5. Docker Compose로 모든 서비스 시작
+      # 여기서 .jar를 기반으로 이미지 생성
+      - name: Build Docker image
+        run: docker-compose -f docker-compose.test.yml build
+
+      # Docker Compose로 모든 서비스 시작
       - name: Start services
         run: docker-compose -f docker-compose.test.yml up -d
 
