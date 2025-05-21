@@ -45,9 +45,22 @@ jobs:
       - name: Start services
         run: docker-compose -f docker-compose.test.yml up -d
 
-      # MySQL 컨테이너 준비 대기
-      - name: Wait for MySQL to be ready
-        run: sleep 20
+      # MySQL 컨테이너 준비 대기(컨테이너 살아날 때까지 최대 10번 확인)
+      - name: Wait for spring-app-test to be ready
+        run: |
+          echo "Checking if spring-app-test container is running..."
+          for i in {1..10}; do
+            STATUS=$(docker inspect -f '{{.State.Running}}' spring-app-test 2>/dev/null || echo "false")
+            if [ "$STATUS" == "true" ]; then
+              echo "spring-app-test is running."
+              exit 0
+            fi
+            echo "Waiting... ($i/10)"
+            sleep 5
+          done
+          echo "spring-app-test did not start in time."
+          docker logs spring-app-test || true
+          exit 1
 
       # Gradle 테스트 수행 (테스트 전용)
       - name: Run tests inside Docker
