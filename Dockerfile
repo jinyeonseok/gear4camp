@@ -9,6 +9,9 @@ COPY gradlew ./
 COPY gradle gradle
 RUN chmod +x ./gradlew
 
+# Gradle을 미리 다운로드 + 캐싱
+RUN ./gradlew --version
+
 # 소스 코드 복사
 COPY . .
 
