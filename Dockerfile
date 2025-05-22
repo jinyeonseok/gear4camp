@@ -4,19 +4,22 @@ FROM openjdk:17-jdk-alpine
 # 작업 디렉토리 설정
 WORKDIR /app
 
-# Gradle Wrapper 권한 부여
-COPY gradlew ./
-COPY gradle gradle
+# Gradle Wrapper 복사 및 실행 권한 부여
+COPY gradlew ./gradlew
+COPY gradle ./gradle
 RUN chmod +x ./gradlew
 
-# Gradle을 미리 다운로드 + 캐싱
-RUN ./gradlew --version
+# 의존성 캐시를 위한 Gradle 설정 파일 복사
+COPY build.gradle settings.gradle ./
 
-# 소스 코드 복사
+# 의존성 미리 다운 (캐싱 목적)
+RUN ./gradlew dependencies --no-daemon || true
+
+# 전체 소스 코드 복사
 COPY . .
 
-# 빌드된 JAR 파일 복사
-COPY build/libs/*.jar app.jar
+# 빌드 및 테스트 수행 → .jar 파일 생성됨
+RUN ./gradlew build --no-daemon
 
-# 애플리케이션 실행
-ENTRYPOINT ["java", "-jar", "app.jar"]
+# 애플리케이션 실행 (이미 위에서 .jar 생성됨)
+ENTRYPOINT ["java", "-jar", "build/libs/app.jar"]
