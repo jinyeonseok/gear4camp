@@ -19,7 +19,7 @@ RUN ./gradlew dependencies --no-daemon || true
 COPY . .
 
 # 빌드 및 테스트 수행 → .jar 파일 생성됨
-RUN ./gradlew build --no-daemon
+RUN ./gradlew build --no-daemon --stacktrace --warning-mode all
 
 # 애플리케이션 실행 (이미 위에서 .jar 생성됨)
 ENTRYPOINT ["java", "-jar", "build/libs/app.jar"]
