@@ -42,5 +42,5 @@ dependencies {
 
 tasks.named('test') {
 	useJUnitPlatform()
-	systemProperty "spring.profiles.active", "test"  // 테스트 실행 시 test 프로파일 활성화
+//	systemProperty "spring.profiles.active", "test"  // 테스트 실행 시 test 프로파일 활성화 -> 로컬과 도커 각 환경 별 테스트를 위해 삭제
 }
