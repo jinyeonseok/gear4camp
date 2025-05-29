@@ -8,6 +8,16 @@ plugins {
 group = 'com.gear4camp'
 version = '0.0.1-SNAPSHOT'
 
+//jar {
+//	archiveFileName = "app.jar"
+//}
+
+// jar { archiveFileName = "app.jar" }만 설정했지만
+// Spring Boot에서는 실행 가능한 .jar을 만들려면 Spring Boot 전용 플러그인이 생성하는 fat jar (즉, bootJar)를 사용해야 함
+bootJar {
+	archiveFileName = "app.jar"
+}
+
 java {
 	toolchain {
 		languageVersion = JavaLanguageVersion.of(17)
