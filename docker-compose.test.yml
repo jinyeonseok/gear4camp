@@ -2,6 +2,7 @@ services:
   mysql-test:
     image: mysql:8.0
     container_name: mysql-test-container
+    hostname: mysql-test-container # 때때로 docker 내부 DNS가 container_name으로 안 잡힐 수 있어서 hostname을 직접 줌으로 안정
     ports:
       - "3308:3306"
     environment:
