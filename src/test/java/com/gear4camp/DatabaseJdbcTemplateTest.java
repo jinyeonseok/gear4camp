@@ -8,7 +8,6 @@ import org.springframework.test.context.ActiveProfiles;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@ActiveProfiles("test")
 @SpringBootTest
 class DatabaseJdbcTemplateTest {
 

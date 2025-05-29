@@ -13,7 +13,6 @@ import java.sql.Statement;
 
 import static org.hibernate.validator.internal.util.Contracts.assertNotNull;
 
-@ActiveProfiles("test")
 @SpringBootTest
 public class DatabaseConnectionTest {
 
