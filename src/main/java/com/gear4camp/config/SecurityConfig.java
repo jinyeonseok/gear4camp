@@ -13,6 +13,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import static com.gear4camp.config.ExcludeUrlConfig.EXCLUDE_URLS;
+
 @Configuration
 @RequiredArgsConstructor
 public class SecurityConfig {
@@ -25,10 +27,16 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // JWT 방식은 세션 비활성화
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/**", "/swagger-ui/**", "/v3/api-docs/**").permitAll() // 인증 없이 접근 허용
-                        .anyRequest().authenticated() // 나머지는 인증 필요
-                )
+                .authorizeHttpRequests(auth -> { // 예외 경로 상수를 공통 클래스로 사용
+                    for(String path : EXCLUDE_URLS) {
+                        auth.requestMatchers(path + "/**").permitAll();
+                    }
+                    auth.anyRequest().authenticated();
+                })
+//                .authorizeHttpRequests(auth -> auth
+//                        .requestMatchers("/auth/**", "/users/register", "/swagger-ui/**", "/v3/api-docs/**").permitAll() // 인증 없이 접근 허용
+//                        .anyRequest().authenticated() // 나머지는 인증 필요
+//                )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class) // JWT 필터 추가
                 .build();
     }

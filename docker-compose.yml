@@ -32,4 +32,4 @@ networks:  # 네트워크 정의
     driver: bridge  # 네트워크 드라이버
 
 volumes:
-  mysql_data:  # 볼륨 설정
+  - ./mysql-data:/var/lib/mysql  # 실제 경로를 로컬 디렉토리와 연결
