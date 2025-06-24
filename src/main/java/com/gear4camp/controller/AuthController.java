@@ -1,6 +1,6 @@
 package com.gear4camp.controller;
 
-import com.gear4camp.dto.LoginRequestDto;
+import com.gear4camp.dto.auth.LoginRequestDto;
 import com.gear4camp.service.AuthService;
 import com.gear4camp.util.JwtUtil;
 import lombok.RequiredArgsConstructor;

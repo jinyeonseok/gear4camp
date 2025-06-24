@@ -1,4 +1,4 @@
-package com.gear4camp.dto;
+package com.gear4camp.dto.auth;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;

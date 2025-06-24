@@ -1,7 +1,7 @@
 package com.gear4camp.service;
 
 import com.gear4camp.domain.User;
-import com.gear4camp.dto.LoginRequestDto;
+import com.gear4camp.dto.auth.LoginRequestDto;
 import com.gear4camp.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.BadCredentialsException;
