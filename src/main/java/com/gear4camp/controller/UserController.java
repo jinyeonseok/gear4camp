@@ -29,8 +29,7 @@ public class UserController {
     // 회원 조회 API (userId 기준 조회)
     @GetMapping("/{userId}")
     public User getUser(@PathVariable("userId") String userId) {
-        return userService.getUserByUserId(userId)
-                .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
+        return userService.getByUserId(userId);
     }
 
     /*
@@ -53,8 +52,7 @@ public class UserController {
     @GetMapping("/me")
     public ResponseEntity<UserResponseDto> getMyInfo(Authentication authentication) {
         String userId = authentication.getName(); // JwtAuthenticationFilter에서 설정한 userId
-        User user = userService.getUserByUserId(userId)
-                .orElseThrow(() -> new RuntimeException("사용자 정보를 찾을 수 없습니다."));
+        User user = userService.getByUserId(userId);
         return ResponseEntity.ok(new UserResponseDto(user));
     }
 
@@ -71,7 +69,6 @@ public class UserController {
     @DeleteMapping("/me")
     public ResponseEntity<String> deleteMyInfo(Authentication authentication) {
         String userId = authentication.getName(); // 토큰에서 추출됨
-
         try {
             userService.deleteUser(userId);
         } catch (IllegalArgumentException e) {

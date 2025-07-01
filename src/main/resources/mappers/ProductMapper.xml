@@ -7,35 +7,55 @@
 
     <!-- 상품 등록 -->
     <insert id="insertProduct" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO products (name, description, price, stock, thumbnail_url)
-        VALUES (#{name}, #{description}, #{price}, #{stock}, #{thumbnailUrl})
+        INSERT INTO products (
+                               name
+                             , description
+                             , price
+                             , stock
+                             , thumbnail_url
+                             , created_by
+                             ) VALUES
+                             (
+                               #{name}
+                             , #{description}
+                             , #{price}
+                             , #{stock}
+                             , #{thumbnailUrl}
+                             , #{createdBy}
+                             )
     </insert>
 
     <!-- 상품 상세 조회 -->
     <select id="selectProductById" resultType="com.gear4camp.domain.Product">
-        SELECT * FROM products WHERE id = #{id}
+        SELECT *
+          FROM products
+         WHERE id = #{id}
     </select>
 
     <!-- 전체 상품 목록 조회 -->
     <select id="selectAllProducts" resultType="com.gear4camp.domain.Product">
-        SELECT * FROM products ORDER BY created_at DESC
+        SELECT *
+          FROM products
+         ORDER BY created_at DESC
     </select>
 
     <!-- 상품 수정 -->
     <update id="updateProduct">
         UPDATE products
-        SET name = #{name},
-        description = #{description},
-        price = #{price},
-        stock = #{stock},
-        thumbnail_url = #{thumbnailUrl},
-        updated_at = CURRENT_TIMESTAMP
-        WHERE id = #{id}
+           SET name = #{name}
+             , description = #{description}
+             , price = #{price}
+             , stock = #{stock}
+             , thumbnail_url = #{thumbnailUrl}
+             , updated_at = CURRENT_TIMESTAMP
+         WHERE id = #{id}
     </update>
 
     <!-- 상품 삭제 -->
     <delete id="deleteProduct">
-        DELETE FROM products WHERE id = #{id}
+        DELETE
+          FROM products
+         WHERE id = #{id}
     </delete>
 
 </mapper>

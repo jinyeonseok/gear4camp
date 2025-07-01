@@ -19,8 +19,7 @@ public class AuthService {
 
     public String login(LoginRequestDto request) {
         // 유저 조회
-        User user = userService.getUserByUserId(request.getUserId())
-                .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
+        User user = userService.getByUserId(request.getUserId());
 
         // 비밀번호 일치 여부 확인
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {

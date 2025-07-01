@@ -28,7 +28,7 @@ public class SecurityConfig {
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // JWT 방식은 세션 비활성화
                 .authorizeHttpRequests(auth -> { // 예외 경로 상수를 공통 클래스로 사용
-                    for(String path : EXCLUDE_URLS) {
+                    for (String path : EXCLUDE_URLS) {
                         auth.requestMatchers(path + "/**").permitAll();
                     }
                     auth.anyRequest().authenticated();

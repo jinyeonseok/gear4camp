@@ -2,6 +2,8 @@ package com.gear4camp.service;
 
 import com.gear4camp.domain.User;
 import com.gear4camp.dto.user.UserUpdateRequestDto;
+import com.gear4camp.exception.CustomException;
+import com.gear4camp.exception.ErrorCode;
 import com.gear4camp.mapper.UserMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -23,13 +25,16 @@ public class UserService {
         userMapper.insertUser(user);
     }
 
-    public Optional<User> getUserByUserId(String userId) {
-        return Optional.ofNullable(userMapper.findByUserId(userId));
+    public User getByUserId(String userId) {
+        User user = userMapper.findByUserId(userId);
+        if (user == null) {
+            throw new CustomException(ErrorCode.USER_NOT_FOUND);
+        }
+        return user;
     }
 
     public void updateUser(String userId, UserUpdateRequestDto dto) {
-        User user = getUserByUserId(userId)
-                .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
+        User user = getByUserId(userId);
 
         user.setName(dto.getName());
         user.setEmail(dto.getEmail());

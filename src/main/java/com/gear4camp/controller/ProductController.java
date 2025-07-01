@@ -1,7 +1,10 @@
 package com.gear4camp.controller;
 
 import com.gear4camp.domain.Product;
+import com.gear4camp.dto.product.ProductRequestDto;
 import com.gear4camp.service.ProductService;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,8 +21,11 @@ public class ProductController {
 
     // 상품 등록
     @PostMapping
-    public void createProduct(@RequestBody Product product) {
-        productService.createProduct(product);
+    public ResponseEntity<Void> createProduct(@RequestBody ProductRequestDto dto, Authentication authentication) {
+        // jwt 토큰에서 인증된 사용자 id 가져오기
+        String userId = authentication.getName(); // JwtAuthenticationFilter에서 넣어준 userId
+        productService.createProduct(dto, userId);
+        return ResponseEntity.ok().build();
     }
 
     // 특정 상품 조회
