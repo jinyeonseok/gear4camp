@@ -42,14 +42,16 @@ public class ProductController {
 
     // 상품 수정
     @PutMapping("/{id}")
-    public void updateProduct(@PathVariable Long id, @RequestBody Product product) {
-        product.setId(id);
-        productService.updateProduct(product);
+    public void updateProduct(@PathVariable Long id, @RequestBody ProductRequestDto dto, Authentication authentication) {
+        String userId = authentication.getName();
+        System.out.println("userId : " + userId);
+        productService.updateProduct(id, dto, userId);
     }
 
     // 상품 삭제
     @DeleteMapping("/{id}")
-    public void deleteProduct(@PathVariable Long id) {
-        productService.deleteProduct(id);
+    public void deleteProduct(@PathVariable Long id, Authentication authentication) {
+        String userId = authentication.getName();
+        productService.deleteProduct(id, userId);
     }
 }

@@ -7,7 +7,6 @@ public class ExcludeUrlConfig {
             "/auth",
             "/users/register",
             "/swagger-ui",
-            "/v3/api-docs",
-            "/products"
+            "/v3/api-docs"
     );
 }

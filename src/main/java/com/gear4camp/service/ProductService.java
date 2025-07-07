@@ -3,6 +3,8 @@ package com.gear4camp.service;
 import com.gear4camp.domain.Product;
 import com.gear4camp.domain.User;
 import com.gear4camp.dto.product.ProductRequestDto;
+import com.gear4camp.exception.CustomException;
+import com.gear4camp.exception.ErrorCode;
 import com.gear4camp.mapper.ProductMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -41,12 +43,39 @@ public class ProductService {
     }
 
     // 상품 정보 수정
-    public void updateProduct(Product product) {
+    public void updateProduct(Long productId, ProductRequestDto dto, String userId) {
+        Product product = productMapper.selectProductById(productId);
+        if (product == null) {
+            throw new CustomException(ErrorCode.PRODUCT_NOT_FOUND);
+        }
+
+        Long currentUserDbId = userService.getByUserId(userId).getId();
+        if (!product.getCreatedBy().equals(currentUserDbId)) {
+            throw new CustomException(ErrorCode.FORBIDDEN);
+        }
+
+        // 업데이트할 값 세팅
+        product.setName(dto.getName());
+        product.setDescription(dto.getDescription());
+        product.setPrice(dto.getPrice());
+        product.setStock(dto.getStock());
+        product.setThumbnailUrl(dto.getThumbnailUrl());
+
         productMapper.updateProduct(product);
     }
 
     // 상품 삭제 처리
-    public void deleteProduct(Long id) {
-        productMapper.deleteProduct(id);
+    public void deleteProduct(Long productId, String userId) {
+        Product product = productMapper.selectProductById(productId);
+        if (product == null) {
+            throw new CustomException(ErrorCode.PRODUCT_NOT_FOUND);
+        }
+
+        Long currentUserDbId = userService.getByUserId(userId).getId();
+        if (!product.getCreatedBy().equals(currentUserDbId)) {
+            throw new CustomException(ErrorCode.FORBIDDEN);
+        }
+
+        productMapper.deleteProduct(productId);
     }
 }

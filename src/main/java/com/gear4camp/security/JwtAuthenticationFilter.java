@@ -4,7 +4,6 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -13,6 +12,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.List;
 
 import static com.gear4camp.config.ExcludeUrlConfig.EXCLUDE_URLS;
 
@@ -71,6 +71,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter { // OncePerRe
 
         // 3. 사용자 ID 추출
         String userId = jwtUtil.getUserIdFromToken(token);
+        System.out.println("JwtAuthenticationFilter userId : " + userId);
 
         // 4. 인증 객체 생성
         UsernamePasswordAuthenticationToken authentication =
