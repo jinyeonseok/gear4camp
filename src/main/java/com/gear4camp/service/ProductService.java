@@ -3,6 +3,7 @@ package com.gear4camp.service;
 import com.gear4camp.domain.Product;
 import com.gear4camp.domain.User;
 import com.gear4camp.dto.product.ProductRequestDto;
+import com.gear4camp.dto.product.ProductResponseDto;
 import com.gear4camp.exception.CustomException;
 import com.gear4camp.exception.ErrorCode;
 import com.gear4camp.mapper.ProductMapper;
@@ -77,5 +78,19 @@ public class ProductService {
         }
 
         productMapper.deleteProduct(productId);
+    }
+
+    public ProductResponseDto toDto(Product product) {
+        ProductResponseDto dto = new ProductResponseDto();
+        dto.setId(product.getId());
+        dto.setName(product.getName());
+        dto.setDescription(product.getDescription());
+        dto.setPrice(product.getPrice());
+        dto.setStock(product.getStock());
+        dto.setThumbnailUrl(product.getThumbnailUrl());
+        dto.setCreatedBy(product.getCreatedBy());
+        dto.setCreatedAt(product.getCreatedAt().toString());  // LocalDateTime -> String
+        dto.setUpdatedAt(product.getUpdatedAt().toString());  // LocalDateTime -> String
+        return dto;
     }
 }
