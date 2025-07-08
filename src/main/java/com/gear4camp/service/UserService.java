@@ -49,4 +49,8 @@ public class UserService {
         }
         userMapper.deleteUser(userId);
     }
+
+    public Long getUserDbId(String userId) {
+        return getByUserId(userId).getId();
+    }
 }

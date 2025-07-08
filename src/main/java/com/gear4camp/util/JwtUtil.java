@@ -3,6 +3,7 @@ package com.gear4camp.util;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
@@ -59,4 +60,8 @@ public class JwtUtil {
                 .getPayload();
     }
 
+    // Authentication 객체에서 userId 추출하는 유틸 메서드
+    public static String getUserIdFromAuthentication(Authentication authentication) {
+        return authentication.getName(); // JwtAuthenticationFilter에서 userId를 set해줌
+    }
 }
