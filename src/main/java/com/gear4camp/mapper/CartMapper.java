@@ -18,4 +18,6 @@ public interface CartMapper {
     void updateQuantity(Long id, Integer quantity);    // 수량 변경
 
     void deleteCart(Long id);                          // 특정 장바구니 항목 삭제
+
+    Optional<Cart> findById(Long id);                  // 단건 조회
 }

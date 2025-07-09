@@ -50,4 +50,11 @@
          WHERE id = #{id}
     </delete>
 
+    <!-- 단건 조회 -->
+    <select id="findById" resultType="com.gear4camp.domain.Cart">
+        SELECT *
+          FROM cart
+         WHERE id = #{id}
+    </select>
+
 </mapper>

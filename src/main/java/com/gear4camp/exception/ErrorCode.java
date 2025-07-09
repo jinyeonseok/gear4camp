@@ -11,7 +11,11 @@ public enum ErrorCode {
     PRODUCT_NOT_FOUND("상품을 찾을 수 없습니다."),
 
     // 권한 관련
-    FORBIDDEN("권한이 없습니다.");
+    FORBIDDEN("권한이 없습니다."),
+
+    // 장바구니 관련
+    CART_NOT_FOUND("장바구니 항목을 찾을 수 없습니다."),
+    NO_AUTHORIZATION("권한이 없습니다.");
 
     private final String message;
 
