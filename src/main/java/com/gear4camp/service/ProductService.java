@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -92,5 +93,11 @@ public class ProductService {
         dto.setCreatedAt(product.getCreatedAt().toString());  // LocalDateTime -> String
         dto.setUpdatedAt(product.getUpdatedAt().toString());  // LocalDateTime -> String
         return dto;
+    }
+
+    public List<ProductResponseDto> toDtoList(List<Product> productList) {
+        return productList.stream()
+                .map(this::toDto)
+                .collect(Collectors.toList());
     }
 }
