@@ -47,6 +47,7 @@ public class CartService {
                     dto.setId(cart.getId());
                     dto.setProductId(cart.getProductId());
                     dto.setQuantity(cart.getQuantity());
+                    // todo -> 책임 분리 원식에 따라 dto쪽에서 처리해야함
                     dto.setCreatedAt(cart.getCreatedAt().toString());
                     dto.setUpdatedAt(cart.getUpdatedAt().toString());
                     return dto;
