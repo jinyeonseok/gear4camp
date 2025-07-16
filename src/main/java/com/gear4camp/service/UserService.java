@@ -21,11 +21,6 @@ public class UserService {
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
 
-    public void registerUser(User user) {
-        user.setPassword(passwordEncoder.encode(user.getPassword())); // 비밀번호 암호화
-        userMapper.insertUser(user);
-    }
-
     public void registerUser(UserRegisterRequestDto dto) {
         // 중복된 userId 확인
         if(userMapper.findByUserId(dto.getUserId()) != null) {
@@ -36,6 +31,7 @@ public class UserService {
 
         User user = new User();
         user.setUserId(dto.getUserId());
+        user.setName(dto.getName());
         user.setPassword(encodedPassword);
         user.setEmail(dto.getEmail());
         user.setCreatedAt(LocalDateTime.now());

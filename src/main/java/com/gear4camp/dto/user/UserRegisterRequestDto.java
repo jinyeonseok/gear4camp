@@ -26,4 +26,8 @@ public class UserRegisterRequestDto {
     @Schema(description = "이메일 주소", example = "jin@example.com")
     private String email;
 
+    @NotBlank(message = "이름은 필수입니다.")
+    @Schema(description = "사용자 이름", example = "진연석")
+    private String name;
+
 }

@@ -6,6 +6,9 @@ import com.gear4camp.dto.cart.CartResponseDto;
 import com.gear4camp.service.CartService;
 import com.gear4camp.service.UserService;
 import com.gear4camp.util.JwtUtil;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -17,12 +20,15 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/cart")
+@Tag(name = "장바구니", description = "Cart 관련 API")
+@SecurityRequirement(name = "bearerAuth")
 public class CartController {
 
     private final CartService cartService;
     private final UserService userService;
 
     @PostMapping
+    @Operation(summary = "장바구니에 상품 추가", description = "상품 ID와 수량을 입력하여 장바구니에 상품을 추가합니다.")
     public ResponseEntity<Void> addToCart(@Valid @RequestBody CartRequestDto dto,
                                           Authentication authentication) {
         // JWT에서 userId 추출
@@ -37,6 +43,7 @@ public class CartController {
     }
 
     @GetMapping
+    @Operation(summary = "장바구니 조회", description = "로그인한 사용자의 장바구니 목록을 조회합니다.")
     public ResponseEntity<List<CartResponseDto>> getCart(Authentication authentication) {
         // JWT에서 userId 추출
         String userId = JwtUtil.getUserIdFromAuthentication(authentication);
@@ -51,6 +58,7 @@ public class CartController {
     }
 
     @PutMapping("/{id}")
+    @Operation(summary = "장바구니 수량 수정", description = "장바구니 상품의 수량을 수정합니다.")
     public ResponseEntity<Void> updateCartQuantity(
             @PathVariable("id") Long cartId,
             @RequestBody @Valid CartQuantityUpdateRequest dto,

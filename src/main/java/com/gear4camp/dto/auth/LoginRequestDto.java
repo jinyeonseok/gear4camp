@@ -11,9 +11,9 @@ import lombok.Setter;
 @NoArgsConstructor
 @Schema(description = "로그인 요청 DTO")
 public class LoginRequestDto {
-    @Schema(description = "사용자 ID", example = "testuser")
+    @Schema(description = "사용자 ID", example = "jinyeon123")
     private String userId;
 
-    @Schema(description = "비밀번호", example = "password123")
+    @Schema(description = "비밀번호", example = "securePassword123!")
     private String password;
 }

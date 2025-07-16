@@ -4,6 +4,7 @@ import com.gear4camp.dto.auth.LoginRequestDto;
 import com.gear4camp.service.AuthService;
 import com.gear4camp.util.JwtUtil;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
+@Tag(name = "로그인", description = "Login 관련 API")
 public class AuthController {
 
     private final JwtUtil jwtUtil;
