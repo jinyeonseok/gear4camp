@@ -1,11 +1,13 @@
 package com.gear4camp.service;
 
 import com.gear4camp.domain.Cart;
+import com.gear4camp.domain.Product;
 import com.gear4camp.dto.cart.CartRequestDto;
 import com.gear4camp.dto.cart.CartResponseDto;
 import com.gear4camp.exception.CustomException;
 import com.gear4camp.exception.ErrorCode;
 import com.gear4camp.mapper.CartMapper;
+import com.gear4camp.mapper.ProductMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -17,6 +19,7 @@ import java.util.stream.Collectors;
 public class CartService {
 
     private final CartMapper cartMapper;
+    private final ProductMapper productMapper;
 
     // 장바구니 담기
     public void addToCart(CartRequestDto dto, Long userId) {
@@ -26,11 +29,14 @@ public class CartService {
                     // 2. 이미 있으면 수량 업데이트
                     int newQuantity = existingCart.getQuantity() + dto.getQuantity();
                     cartMapper.updateQuantity(existingCart.getId(), newQuantity);
-                }, () -> {
-                    // 3. 없으면 새로 insert
+                }, () -> { // 3. 없으면 새로 insert
+                    // 4. 상품 가격 조회
+                    Long price = productMapper.findPriceById(dto.getProductId());
+
                     Cart cart = new Cart();
                     cart.setUserId(userId);
                     cart.setProductId(dto.getProductId());
+                    cart.setPrice(price);
                     cart.setQuantity(dto.getQuantity());
 
                     cartMapper.insertCart(cart);
@@ -69,6 +75,18 @@ public class CartService {
         }
 
         cartMapper.updateQuantity(cartId, quantity);
+    }
+
+    // 장바구니 삭제
+    public void deleteCart(Long cartId, Long userDbId) {
+        Cart cart = cartMapper.findById(cartId)
+                .orElseThrow(() -> new CustomException(ErrorCode.CART_NOT_FOUND));
+
+        if (!cart.getUserId().equals(userDbId)) {
+            throw new CustomException(ErrorCode.NO_AUTHORIZATION);
+        }
+
+        cartMapper.deleteCart(cartId);
     }
 
 }

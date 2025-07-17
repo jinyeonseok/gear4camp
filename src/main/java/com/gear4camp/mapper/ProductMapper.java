@@ -17,6 +17,9 @@ public interface ProductMapper {
     // 상품 목록 전체 조회
     List<Product> selectAllProducts();
 
+    // 상품 가격 조회
+    Long findPriceById(Long productId);
+    
     // 상품 정보 수정
     void updateProduct(Product product);
 

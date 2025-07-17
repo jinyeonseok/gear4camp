@@ -11,11 +11,13 @@
                            user_id
                          , product_id
                          , quantity
+                         , price
                          ) VALUES
                          (
                            #{userId}
                          , #{productId}
                          , #{quantity}
+                         , #{price}
                          )
     </insert>
 

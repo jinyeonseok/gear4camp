@@ -7,10 +7,12 @@ import com.gear4camp.service.CartService;
 import com.gear4camp.service.UserService;
 import com.gear4camp.util.JwtUtil;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -39,7 +41,7 @@ public class CartController {
         // 장바구니 서비스 호출
         cartService.addToCart(dto, Long.valueOf(userDbId));
 
-        return ResponseEntity.ok().build(); // 200 OK만 반환 (body 없음)
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @GetMapping
@@ -54,12 +56,13 @@ public class CartController {
         // 장바구니 조회
         List<CartResponseDto> cartList = cartService.getCartListByUserId(userDbId);
 
-        return ResponseEntity.ok(cartList);
+        return ResponseEntity.status(HttpStatus.OK).body(cartList);
     }
 
     @PutMapping("/{id}")
     @Operation(summary = "장바구니 수량 수정", description = "장바구니 상품의 수량을 수정합니다.")
     public ResponseEntity<Void> updateCartQuantity(
+            @Parameter(name = "id", description = "장바구니 항목 ID (Cart의 PK)")
             @PathVariable("id") Long cartId,
             @RequestBody @Valid CartQuantityUpdateRequest dto,
             Authentication authentication
@@ -76,6 +79,21 @@ public class CartController {
         // 4. 수량 업데이트
         cartService.updateCartQuantity(cartId, dto.getQuantity(), userDbId);
 
-        return ResponseEntity.ok().build();
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
+    @DeleteMapping("/{id}")
+    @Operation(summary = "장바구니 항목 삭제", description = "특정 장바구니 항목을 삭제합니다.")
+    public ResponseEntity<Void> deleteCartItem(
+            @Parameter(name = "id", description = "장바구니 항목 ID (Cart의 PK)")
+            @PathVariable("id") Long cartId,
+            Authentication authentication
+    ) {
+        String userId = JwtUtil.getUserIdFromAuthentication(authentication);
+        Long userDbId = userService.getByUserId(userId).getId();
+
+        cartService.deleteCart(cartId, userDbId);
+
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build(); // 204 No Content
     }
 }
