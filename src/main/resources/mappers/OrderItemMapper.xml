@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.gear4camp.mapper.OrderItemMapper">
+
+    <!-- 주문 항목 등록 -->
+    <insert id="insertOrderItem" parameterType="com.gear4camp.domain.OrderItem">
+        INSERT INTO order_items (
+                                  order_id
+                                , product_id
+                                , quantity
+                                , price
+                                ) VALUES
+                                (
+                                  #{orderId}
+                                , #{productId}
+                                , #{quantity}
+                                , #{price}
+                                )
+    </insert>
+
+    <!-- 특정 주문에 포함된 항목 전체 조회 -->
+    <select id="findByOrderId" resultType="com.gear4camp.domain.OrderItem">
+        SELECT *
+        FROM order_items
+        WHERE order_id = #{orderId}
+        ORDER BY created_at DESC
+    </select>
+
+</mapper>
