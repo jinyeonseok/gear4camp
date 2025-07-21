@@ -46,8 +46,7 @@ public class OrderController {
 
     @GetMapping
     @Operation(summary = "주문 목록 조회", description = "로그인한 사용자의 전체 주문 내역을 조회합니다.")
-    public ResponseEntity<List<OrderResponseDto>> getOrders(
-            Authentication authentication) {
+    public ResponseEntity<List<OrderResponseDto>> getOrders(Authentication authentication) {
         String userId = JwtUtil.getUserIdFromAuthentication(authentication);
         Long userDbId = userService.getByUserId(userId).getId();
 
@@ -59,8 +58,7 @@ public class OrderController {
     @GetMapping("/{id}")
     @Operation(summary = "주문 단건 조회", description = "주문 ID로 주문 정보를 조회합니다.")
     public ResponseEntity<OrderResponseDto> getOrderById(
-            @Parameter(description = "주문 ID") @PathVariable("id") Long orderId,
-            Authentication authentication) {
+            @Parameter(description = "주문 ID") @PathVariable("id") Long orderId, Authentication authentication) {
 
         String userId = JwtUtil.getUserIdFromAuthentication(authentication);
         Long userDbId = userService.getUserDbId(userId);
@@ -69,4 +67,28 @@ public class OrderController {
         return ResponseEntity.status(HttpStatus.OK).body(dto);
     }
 
+    @PutMapping("/{orderId}/cancel")
+    @Operation(summary = "주문 취소", description = "주문 ID를 기반으로 주문을 취소합니다.")
+    public ResponseEntity<Void> cancelOrder(@PathVariable Long orderId, Authentication authentication) {
+
+        String userId = JwtUtil.getUserIdFromAuthentication(authentication);
+        Long userDbId = userService.getUserDbId(userId);
+
+        orderService.cancelOrder(orderId, userDbId);
+
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
+
+    @PutMapping("/{orderId}/status")
+    @Operation(summary = "주문 상태 변경", description = "주문 상태를 변경합니다. 예: ORDERED, SHIPPED, DELIVERED 등") //
+    public ResponseEntity<Void> updateOrderStatus(@PathVariable Long orderId, @RequestParam String status,
+            Authentication authentication) {
+
+        String userId = JwtUtil.getUserIdFromAuthentication(authentication);
+        Long userDbId = userService.getUserDbId(userId);
+
+        orderService.updateOrderStatus(orderId, userDbId, status);
+
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
 }

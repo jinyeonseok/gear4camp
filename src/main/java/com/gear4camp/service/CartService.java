@@ -1,7 +1,6 @@
 package com.gear4camp.service;
 
 import com.gear4camp.domain.Cart;
-import com.gear4camp.domain.Product;
 import com.gear4camp.dto.cart.CartRequestDto;
 import com.gear4camp.dto.cart.CartResponseDto;
 import com.gear4camp.exception.CustomException;

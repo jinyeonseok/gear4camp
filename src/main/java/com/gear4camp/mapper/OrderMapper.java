@@ -16,4 +16,7 @@ public interface OrderMapper {
     List<Order> findByUserId(Long userId);              // 마이페이지 등 사용자의 모든 주문 조회
 
     void updateStatus(Long id, String status);          // 주문 상태 변경
+
+    void cancelOrder(Long orderId);
+
 }

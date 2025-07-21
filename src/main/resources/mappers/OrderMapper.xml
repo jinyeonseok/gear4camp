@@ -42,4 +42,12 @@
          WHERE id = #{id}
     </update>
 
+    <!-- 주문 상태 업데이트 (취소) -->
+    <update id="cancelOrder">
+        UPDATE orders
+           SET status = 'CANCELLED',
+               updated_at = CURRENT_TIMESTAMP
+         WHERE id = #{orderId}
+    </update>
+
 </mapper>

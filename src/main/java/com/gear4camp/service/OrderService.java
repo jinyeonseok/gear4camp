@@ -14,6 +14,7 @@ import com.gear4camp.mapper.OrderMapper;
 import com.gear4camp.mapper.ProductMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -77,6 +78,7 @@ public class OrderService {
     }
 
     public OrderResponseDto getOrderById(Long orderId, Long userDbId) {
+
         // 1. 주문 조회
         Order order = orderMapper.findById(orderId)
                 .orElseThrow(() -> new CustomException(ErrorCode.ORDER_NOT_FOUND));
@@ -116,6 +118,7 @@ public class OrderService {
     }
 
     public List<OrderResponseDto> getOrdersByUserId(Long userDbId) {
+
         // 1. 유저의 전체 주문 목록 조회
         List<Order> orders = orderMapper.findByUserId(userDbId);
 
@@ -150,6 +153,42 @@ public class OrderService {
                     return dto;
                 })
                 .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public void cancelOrder(Long orderId, Long userDbId) {
+
+        // 1. 주문 조회
+        Order order = orderMapper.findById(orderId)
+                .orElseThrow(() -> new CustomException(ErrorCode.ORDER_NOT_FOUND));
+
+        // 2. 권한 확인
+        if (!order.getUserId().equals(userDbId)) {
+            throw new CustomException(ErrorCode.NO_AUTHORIZATION);
+        }
+
+        // 3. 이미 취소된 주문인지 확인
+        if ("CANCELLED".equals(order.getStatus())) {
+            throw new CustomException(ErrorCode.ORDER_ALREADY_CANCELLED);
+        }
+
+        // 4. 주문 상태 취소로 업데이트
+        orderMapper.cancelOrder(orderId);
+    }
+
+    public void updateOrderStatus(Long orderId, Long userDbId, String status) {
+
+        // 1. 주문 조회
+        Order order = orderMapper.findById(orderId)
+                .orElseThrow(() -> new CustomException(ErrorCode.ORDER_NOT_FOUND));
+
+        // 2. 권한 검증
+        if (!order.getUserId().equals(userDbId)) {
+            throw new CustomException(ErrorCode.NO_AUTHORIZATION);
+        }
+
+        // 3. 상태 업데이트
+        orderMapper.updateStatus(orderId, status);
     }
 
 }

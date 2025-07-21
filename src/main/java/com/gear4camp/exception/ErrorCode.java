@@ -19,6 +19,7 @@ public enum ErrorCode {
     NO_AUTHORIZATION("권한이 없습니다."),
 
     // 주문 관련
+    ORDER_ALREADY_CANCELLED("이미 취소된 주문입니다."),
     ORDER_NOT_FOUND("주문 정보를 찾을 수 없습니다.");
 
     private final String message;
