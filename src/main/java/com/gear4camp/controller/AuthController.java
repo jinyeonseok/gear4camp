@@ -14,6 +14,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
@@ -29,9 +32,13 @@ public class AuthController {
             description = "userId와 password를 입력하면 accessToken(JWT)을 반환합니다."
     )
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody @Valid LoginRequestDto loginRequestDto) {
+    public ResponseEntity<Map<String, String>> login(@RequestBody @Valid LoginRequestDto loginRequestDto) {
+
         String token = authService.login(loginRequestDto);
 
-        return ResponseEntity.status(HttpStatus.OK).body(token);
+        Map<String, String> response = new HashMap<>();
+        response.put("token", token);
+
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 }

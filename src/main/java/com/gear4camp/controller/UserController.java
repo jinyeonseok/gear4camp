@@ -16,6 +16,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @RestController
 @RequestMapping("/users")
 @RequiredArgsConstructor
@@ -27,9 +30,14 @@ public class UserController {
     // 회원 가입 API
     @Operation(summary = "회원가입", description = "회원가입")
     @PostMapping("/register")
-    public ResponseEntity<String> registerUser(@RequestBody @Valid UserRegisterRequestDto userRegisterRequestDto) {
+    public ResponseEntity<Map<String, String>> registerUser(@RequestBody @Valid UserRegisterRequestDto userRegisterRequestDto) {
+
         userService.registerUser(userRegisterRequestDto);
-        return ResponseEntity.status(HttpStatus.CREATED).body("회원 가입 성공");
+
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "회원 가입 성공");
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     // JWT 인증된 사용자 정보 조회

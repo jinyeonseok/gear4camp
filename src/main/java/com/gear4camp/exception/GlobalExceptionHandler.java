@@ -6,7 +6,9 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 
@@ -33,5 +35,18 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
     }
 
-    // 다른 예외도 추가 가능 (예: CustomException)
+    // 응답본문(body)에 errorCode json필드가 있어야 하는데 컨트롤러는 CustomException이 발생해도 응답 본문을 만들지 않음
+    // 해당 코드로 인해 테스트 시 예외 응답을 json 형식으로 받을 수 있고 테스트에도 용이함
+    @ExceptionHandler(CustomException.class)
+    public ResponseEntity<Map<String, String>> handleCustomException(CustomException e) {
+
+        Map<String, String> errorBody = new HashMap<>();
+
+        errorBody.put("errorCode", e.getErrorCode().name());
+        errorBody.put("message", e.getErrorCode().getMessage());
+
+        return ResponseEntity.status(e.getErrorCode().getStatus()).body(errorBody);
+
+    }
+
 }
