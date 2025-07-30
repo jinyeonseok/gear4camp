@@ -27,5 +27,5 @@ public class OrderResponseDto {
     private String updatedAt;
 
     @Schema(description = "주문 상품 목록")
-    private List<OrderItemDto> orderItems; // ✅ 반드시 포함
+    private List<OrderItemDto> orderItems;
 }

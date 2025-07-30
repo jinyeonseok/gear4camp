@@ -42,7 +42,7 @@
     <!-- 상품 가격 조회 -->
     <select id="findPriceById" resultType="long">
         SELECT price
-          FROM product
+          FROM products
          WHERE id = #{productId}
     </select>
 

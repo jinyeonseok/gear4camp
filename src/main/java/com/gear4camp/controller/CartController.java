@@ -17,7 +17,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -31,7 +33,7 @@ public class CartController {
 
     @PostMapping
     @Operation(summary = "장바구니에 상품 추가", description = "상품 ID와 수량을 입력하여 장바구니에 상품을 추가합니다.")
-    public ResponseEntity<Void> addToCart(@Valid @RequestBody CartRequestDto dto,
+    public ResponseEntity<Map<String, Object>> addToCart(@Valid @RequestBody CartRequestDto dto,
                                           Authentication authentication) {
         // JWT에서 userId 추출
         String userId = JwtUtil.getUserIdFromAuthentication(authentication);
@@ -39,24 +41,29 @@ public class CartController {
         Long userDbId = userService.getUserDbId(userId); // 실제 DB PK 조회
 
         // 장바구니 서비스 호출
-        cartService.addToCart(dto, Long.valueOf(userDbId));
+        Map<String, Object> response = cartService.addToCart(dto, Long.valueOf(userDbId));
 
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @GetMapping
     @Operation(summary = "장바구니 조회", description = "로그인한 사용자의 장바구니 목록을 조회합니다.")
-    public ResponseEntity<List<CartResponseDto>> getCart(Authentication authentication) {
+    public ResponseEntity<Map<String, Object>> getCart(Authentication authentication) {
         // JWT에서 userId 추출
         String userId = JwtUtil.getUserIdFromAuthentication(authentication);
 
         // userId로 DB의 실제 PK 조회
         Long userDbId = userService.getByUserId(userId).getId();
 
+        Map<String, Object> response = new HashMap<>();
+
         // 장바구니 조회
         List<CartResponseDto> cartList = cartService.getCartListByUserId(userDbId);
 
-        return ResponseEntity.status(HttpStatus.OK).body(cartList);
+        response.put("cartList", cartList);
+        response.put("message", "장바구니 조회 성공");
+
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @PutMapping("/{id}")

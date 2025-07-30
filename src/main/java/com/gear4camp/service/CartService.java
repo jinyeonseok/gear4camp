@@ -10,7 +10,10 @@ import com.gear4camp.mapper.ProductMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -21,25 +24,39 @@ public class CartService {
     private final ProductMapper productMapper;
 
     // 장바구니 담기
-    public void addToCart(CartRequestDto dto, Long userId) {
-        // 1. 중복 여부 확인
-        cartMapper.findByUserIdAndProductId(userId, dto.getProductId())
-                .ifPresentOrElse(existingCart -> {
-                    // 2. 이미 있으면 수량 업데이트
-                    int newQuantity = existingCart.getQuantity() + dto.getQuantity();
-                    cartMapper.updateQuantity(existingCart.getId(), newQuantity);
-                }, () -> { // 3. 없으면 새로 insert
-                    // 4. 상품 가격 조회
-                    Long price = productMapper.findPriceById(dto.getProductId());
+    public Map<String, Object> addToCart(CartRequestDto dto, Long userId) {
 
-                    Cart cart = new Cart();
-                    cart.setUserId(userId);
-                    cart.setProductId(dto.getProductId());
-                    cart.setPrice(price);
-                    cart.setQuantity(dto.getQuantity());
+        Map<String, Object> response = new HashMap<>();
 
-                    cartMapper.insertCart(cart);
-                });
+        Optional<Cart> existingCart = cartMapper.findByUserIdAndProductId(userId, dto.getProductId());
+
+        if (existingCart.isPresent()) { // 담은 상품이 존재하면 수량 증가 UPDATE
+
+            int newQuantity = existingCart.get().getQuantity() + dto.getQuantity();
+            cartMapper.updateQuantity(existingCart.get().getId(), newQuantity);
+
+            response.put("productId", dto.getProductId());
+            response.put("quantity", newQuantity);
+            response.put("message", "장바구니 수량 증가 완료");
+
+        } else { // 담은 상품이 존재하지 않으면 INSERT
+
+            Long price = productMapper.findPriceById(dto.getProductId());
+
+            Cart cart = new Cart();
+            cart.setUserId(userId);
+            cart.setProductId(dto.getProductId());
+            cart.setQuantity(dto.getQuantity());
+            cart.setPrice(price);
+
+            cartMapper.insertCart(cart);
+
+            response.put("productId", dto.getProductId());
+            response.put("quantity", dto.getQuantity());
+            response.put("message", "장바구니 상품 추가 성공");
+        }
+
+        return response;
     }
 
     // 장바구니 전체 조회
