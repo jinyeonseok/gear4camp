@@ -100,7 +100,7 @@ class OrderIntegrationTest {
         // 4. 주문 취소
         mockMvc.perform(put("/orders/" + orderId + "/cancel")
                         .header("Authorization", "Bearer " + token))
-                .andExpect(status().isNoContent());
+                .andExpect(status().isOk());
 
         // 5. 취소된 주문 상태 확인
         MvcResult cancelledResult = mockMvc.perform(get("/orders/" + orderId)

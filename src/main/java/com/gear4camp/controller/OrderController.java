@@ -38,7 +38,7 @@ public class OrderController {
         String userId = JwtUtil.getUserIdFromAuthentication(authentication);
 
         // 실제 DB의 user PK 조회
-        Long userDbId = userService.getByUserId(userId).getId();
+        Long userDbId = userService.getUserDbId(userId);
 
         // 주문 생성 서비스 호출
         orderService.createOrder(cartIdList, userDbId);
@@ -93,7 +93,7 @@ public class OrderController {
         Map<String, Object> response = new HashMap<>();
         response.put("message", "주문 취소 성공");
 
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(response);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @PutMapping("/{orderId}/status")
@@ -109,6 +109,6 @@ public class OrderController {
         Map<String, Object> response = new HashMap<>();
         response.put("message", "주문 상태 변경");
 
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(response);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 }

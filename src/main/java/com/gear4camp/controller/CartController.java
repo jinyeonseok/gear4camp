@@ -53,7 +53,7 @@ public class CartController {
         String userId = JwtUtil.getUserIdFromAuthentication(authentication);
 
         // userId로 DB의 실제 PK 조회
-        Long userDbId = userService.getByUserId(userId).getId();
+        Long userDbId = userService.getUserDbId(userId);
 
         Map<String, Object> response = new HashMap<>();
 
@@ -78,7 +78,7 @@ public class CartController {
         String userId = JwtUtil.getUserIdFromAuthentication(authentication);
 
         // 실제 DB의 user PK 조회
-        Long userDbId = userService.getByUserId(userId).getId();
+        Long userDbId = userService.getUserDbId(userId);
 
         System.out.println("userDbId from JWT: " + userDbId);
 
@@ -97,7 +97,7 @@ public class CartController {
             Authentication authentication
     ) {
         String userId = JwtUtil.getUserIdFromAuthentication(authentication);
-        Long userDbId = userService.getByUserId(userId).getId();
+        Long userDbId = userService.getUserDbId(userId);
 
         cartService.deleteCart(cartId, userDbId);
 
