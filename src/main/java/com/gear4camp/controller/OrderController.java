@@ -14,7 +14,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -28,7 +30,7 @@ public class OrderController {
 
     @PostMapping
     @Operation(summary = "주문 생성", description = "장바구니 항목 ID 목록을 전달하여 주문을 생성합니다.")
-    public ResponseEntity<Void> createOrder(
+    public ResponseEntity<Map<String, Object>> createOrder(
             @Parameter(description = "장바구니 ID 리스트", example = "[1, 2, 3]")
             @RequestBody List<Long> cartIdList,
             Authentication authentication) {
@@ -41,47 +43,62 @@ public class OrderController {
         // 주문 생성 서비스 호출
         orderService.createOrder(cartIdList, userDbId);
 
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+        Map<String, Object> response = new HashMap<>();
+        response.put("message", "주문 생성 성공");
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @GetMapping
     @Operation(summary = "주문 목록 조회", description = "로그인한 사용자의 전체 주문 내역을 조회합니다.")
-    public ResponseEntity<List<OrderResponseDto>> getOrders(Authentication authentication) {
+    public ResponseEntity<Map<String, Object>> getOrders(Authentication authentication) {
         String userId = JwtUtil.getUserIdFromAuthentication(authentication);
         Long userDbId = userService.getByUserId(userId).getId();
 
         List<OrderResponseDto> orderList = orderService.getOrdersByUserId(userDbId);
 
-        return ResponseEntity.status(HttpStatus.OK).body(orderList);
+        Map<String, Object> response = new HashMap<>();
+        response.put("message", "주문 목록 조회");
+        response.put("orderList", orderList);
+
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @GetMapping("/{id}")
     @Operation(summary = "주문 단건 조회", description = "주문 ID로 주문 정보를 조회합니다.")
-    public ResponseEntity<OrderResponseDto> getOrderById(
+    public ResponseEntity<Map<String, Object>> getOrderById(
             @Parameter(description = "주문 ID") @PathVariable("id") Long orderId, Authentication authentication) {
 
         String userId = JwtUtil.getUserIdFromAuthentication(authentication);
         Long userDbId = userService.getUserDbId(userId);
 
         OrderResponseDto dto = orderService.getOrderById(orderId, userDbId);
-        return ResponseEntity.status(HttpStatus.OK).body(dto);
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("message", "주문 단건 조회");
+        response.put("orderDto", dto);
+
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @PutMapping("/{orderId}/cancel")
     @Operation(summary = "주문 취소", description = "주문 ID를 기반으로 주문을 취소합니다.")
-    public ResponseEntity<Void> cancelOrder(@PathVariable Long orderId, Authentication authentication) {
+    public ResponseEntity<Map<String, Object>> cancelOrder(@PathVariable("orderId") Long orderId, Authentication authentication) {
 
         String userId = JwtUtil.getUserIdFromAuthentication(authentication);
         Long userDbId = userService.getUserDbId(userId);
 
         orderService.cancelOrder(orderId, userDbId);
 
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        Map<String, Object> response = new HashMap<>();
+        response.put("message", "주문 취소 성공");
+
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(response);
     }
 
     @PutMapping("/{orderId}/status")
     @Operation(summary = "주문 상태 변경", description = "주문 상태를 변경합니다. 예: ORDERED, SHIPPED, DELIVERED 등") //
-    public ResponseEntity<Void> updateOrderStatus(@PathVariable Long orderId, @RequestParam String status,
+    public ResponseEntity<Map<String, Object>> updateOrderStatus(@PathVariable Long orderId, @RequestParam String status,
             Authentication authentication) {
 
         String userId = JwtUtil.getUserIdFromAuthentication(authentication);
@@ -89,6 +106,9 @@ public class OrderController {
 
         orderService.updateOrderStatus(orderId, userDbId, status);
 
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        Map<String, Object> response = new HashMap<>();
+        response.put("message", "주문 상태 변경");
+
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(response);
     }
 }
