@@ -1,0 +1,74 @@
+name: CI/CD with Docker
+
+on:
+  push:
+    branches:
+      - main
+      - dev
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    env:
+      SPRING_PROFILES_ACTIVE: test-docker
+      
+    steps:
+      # 코드 체크아웃
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # JDK 17 설치
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      # Gradle 권한 설정
+      - name: Grant execute permission for gradlew
+        run: chmod +x ./gradlew
+
+      # .jar 생성 (테스트 제외)
+      - name : gralde build with test
+        run : ./gradlew clean build -x test
+
+      # Docker Compose 설치
+      - name: Install Docker Compose
+        run: sudo apt-get update && sudo apt-get install -y docker-compose
+
+      # 여기서 .jar를 기반으로 테스트용 이미지 생성
+      - name: Build Docker image
+        run: docker-compose -f docker-compose.test.yml build
+
+      # 테스트 환경용 컨테이너 실행 (MySQL + Spring App)
+      - name: Start services
+        run: docker-compose -f docker-compose.test.yml up -d
+
+      # MySQL 컨테이너 준비 대기
+      - name: Wait for MySQL to be ready (check port)
+        run: |
+          echo "Checking MySQL connection..."
+          for i in {1..15}; do
+            docker exec mysql-test-container mysqladmin ping -h "localhost" -u root --password=root && exit 0
+            echo "Waiting for MySQL... ($i/15)"
+            sleep 4
+          done
+          echo "❌ MySQL is not ready in time."
+          exit 1
+
+      # Gradle 테스트 수행 (테스트 전용)
+      - name: Run tests inside Docker
+        run: docker exec spring-app-test ./gradlew clean test --no-daemon -Dspring.profiles.active=test-docker
+
+      # Docker 로그인(구글연동으로 가입하면 로그인 인식을 못해서 도커 비밀번호를 구글 비밀번호로 다시 변경하니 인식..)
+      - name: Log in to Docker Hub
+        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+
+      # 운영 배포용 Docker 이미지 빌드 (.jar만 포함된 경량 이미지)
+      - name: Build Docker image
+        run: docker build -t jinyeonseok/gear4camp:latest .
+
+      # Docker 이미지 푸시
+      - name: Push Docker image
+        run: docker push jinyeonseok/gear4camp:latest
