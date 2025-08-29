@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gear4camp.dto.cart.CartQuantityUpdateRequest;
 import com.gear4camp.dto.cart.CartRequestDto;
+import com.gear4camp.dto.product.ProductRequestDto;
 import com.gear4camp.integration.common.TestAuthUtils;
 import com.gear4camp.integration.common.TestAuthUtils.TokenAndUserId;
 import org.junit.jupiter.api.DisplayName;
@@ -23,7 +24,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@ActiveProfiles("local")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
 @Transactional
@@ -47,10 +47,29 @@ class CartIntegrationTest {
 
         Long productId = 1L;
         int quantity = 2;
+        long price = 10000;
+
+        ProductRequestDto productRequestDto = new ProductRequestDto();
+        productRequestDto.setName("캠핑 의자");
+        productRequestDto.setDescription("접이식 방수 캠핑 의자");
+        productRequestDto.setPrice(price);
+        productRequestDto.setStock(2);
+        productRequestDto.setThumbnailUrl("https://example.com/image.jpg");
+
+        MvcResult createRes = mockMvc.perform(post("/products")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .header("Authorization", "Bearer " + token)
+                                .content(objectMapper.writeValueAsString(productRequestDto)))
+                .andExpect(status().isCreated())
+                        .andReturn();
+
+        long createdId = objectMapper.readTree(createRes.getResponse().getContentAsString())
+                .path("productId").asLong();
 
         CartRequestDto requestDto = new CartRequestDto();
-        requestDto.setProductId(productId);
+        requestDto.setProductId(createdId);
         requestDto.setQuantity(quantity);
+        requestDto.setPrice(price);
 
         MvcResult result = mockMvc.perform(post("/cart")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -79,11 +98,27 @@ class CartIntegrationTest {
         TokenAndUserId user = testAuthUtils.registerAndLoginRandomWithUserId();
         String token = user.getToken();
 
-        Long productId = 1L;
+        ProductRequestDto productRequestDto = new ProductRequestDto();
+        productRequestDto.setName("캠핑 의자");
+        productRequestDto.setDescription("접이식 방수 캠핑 의자");
+        productRequestDto.setPrice(10000L);
+        productRequestDto.setStock(2);
+        productRequestDto.setThumbnailUrl("https://example.com/image.jpg");
+
+        MvcResult createRes = mockMvc.perform(post("/products")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", "Bearer " + token)
+                        .content(objectMapper.writeValueAsString(productRequestDto)))
+                .andExpect(status().isCreated())
+                .andReturn();
+
+        long createdId = objectMapper.readTree(createRes.getResponse().getContentAsString())
+                .path("productId").asLong();
 
         CartRequestDto requestDto = new CartRequestDto();
-        requestDto.setProductId(productId);
+        requestDto.setProductId(createdId);
         requestDto.setQuantity(1);
+        requestDto.setPrice(10000L);
 
         mockMvc.perform(post("/cart")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -128,9 +163,27 @@ class CartIntegrationTest {
         TokenAndUserId user = testAuthUtils.registerAndLoginRandomWithUserId();
         String token = user.getToken();
 
+        ProductRequestDto productRequestDto = new ProductRequestDto();
+        productRequestDto.setName("캠핑 의자");
+        productRequestDto.setDescription("접이식 방수 캠핑 의자");
+        productRequestDto.setPrice(10000L);
+        productRequestDto.setStock(2);
+        productRequestDto.setThumbnailUrl("https://example.com/image.jpg");
+
+        MvcResult createRes = mockMvc.perform(post("/products")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", "Bearer " + token)
+                        .content(objectMapper.writeValueAsString(productRequestDto)))
+                .andExpect(status().isCreated())
+                .andReturn();
+
+        long createdId = objectMapper.readTree(createRes.getResponse().getContentAsString())
+                .path("productId").asLong();
+
         CartRequestDto requestDto = new CartRequestDto();
-        requestDto.setProductId(1L);
+        requestDto.setProductId(createdId);
         requestDto.setQuantity(3);
+        requestDto.setPrice(10000L);
 
         mockMvc.perform(post("/cart")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -147,7 +200,7 @@ class CartIntegrationTest {
 
         JsonNode cartList = objectMapper.readTree(responseBody).get("cartList");
 
-        assertThat(cartList.get(0).get("productId").asLong()).isEqualTo(1L);
+        assertThat(cartList.get(0).get("productId").asLong()).isEqualTo(createdId);
         assertThat(cartList.get(0).get("quantity").asInt()).isEqualTo(3);
 
         System.out.println("전체 응답 JSON =\n" +
@@ -164,12 +217,28 @@ class CartIntegrationTest {
         TokenAndUserId user = testAuthUtils.registerAndLoginRandomWithUserId();
         String token = user.getToken();
 
-        Long productId = 1L;
+        ProductRequestDto productRequestDto = new ProductRequestDto();
+        productRequestDto.setName("캠핑 의자");
+        productRequestDto.setDescription("접이식 방수 캠핑 의자");
+        productRequestDto.setPrice(10000L);
+        productRequestDto.setStock(2);
+        productRequestDto.setThumbnailUrl("https://example.com/image.jpg");
+
+        MvcResult createRes = mockMvc.perform(post("/products")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", "Bearer " + token)
+                        .content(objectMapper.writeValueAsString(productRequestDto)))
+                .andExpect(status().isCreated())
+                .andReturn();
+
+        long createdId = objectMapper.readTree(createRes.getResponse().getContentAsString())
+                .path("productId").asLong();
 
         // 장바구니에 상품 담기
         CartRequestDto requestDto = new CartRequestDto();
-        requestDto.setProductId(productId);
+        requestDto.setProductId(createdId);
         requestDto.setQuantity(1);
+        requestDto.setPrice(10000L);
 
         mockMvc.perform(post("/cart")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -229,11 +298,28 @@ class CartIntegrationTest {
         TokenAndUserId user = testAuthUtils.registerAndLoginRandomWithUserId();
         String token = user.getToken();
 
+        ProductRequestDto productRequestDto = new ProductRequestDto();
+        productRequestDto.setName("캠핑 의자");
+        productRequestDto.setDescription("접이식 방수 캠핑 의자");
+        productRequestDto.setPrice(10000L);
+        productRequestDto.setStock(2);
+        productRequestDto.setThumbnailUrl("https://example.com/image.jpg");
+
+        MvcResult createRes = mockMvc.perform(post("/products")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", "Bearer " + token)
+                        .content(objectMapper.writeValueAsString(productRequestDto)))
+                .andExpect(status().isCreated())
+                .andReturn();
+
+        long createdId = objectMapper.readTree(createRes.getResponse().getContentAsString())
+                .path("productId").asLong();
+
         // 장바구니에 항목 추가
-        Long productId = 1L;
         CartRequestDto requestDto = new CartRequestDto();
-        requestDto.setProductId(productId);
+        requestDto.setProductId(createdId);
         requestDto.setQuantity(3);
+        requestDto.setPrice(10000L);
 
         mockMvc.perform(post("/cart")
                         .header("Authorization", "Bearer " + token)
@@ -317,10 +403,28 @@ class CartIntegrationTest {
         TokenAndUserId user = testAuthUtils.registerAndLoginRandomWithUserId();
         String token = user.getToken();
 
+        ProductRequestDto productRequestDto = new ProductRequestDto();
+        productRequestDto.setName("캠핑 의자");
+        productRequestDto.setDescription("접이식 방수 캠핑 의자");
+        productRequestDto.setPrice(10000L);
+        productRequestDto.setStock(2);
+        productRequestDto.setThumbnailUrl("https://example.com/image.jpg");
+
+        MvcResult createRes = mockMvc.perform(post("/products")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", "Bearer " + token)
+                        .content(objectMapper.writeValueAsString(productRequestDto)))
+                .andExpect(status().isCreated())
+                .andReturn();
+
+        long createdId = objectMapper.readTree(createRes.getResponse().getContentAsString())
+                .path("productId").asLong();
+
         // 장바구니 담기
         CartRequestDto requestDto = new CartRequestDto();
-        requestDto.setProductId(1L);
+        requestDto.setProductId(createdId);
         requestDto.setQuantity(1);
+        requestDto.setPrice(10000L);
 
         mockMvc.perform(post("/cart")
                         .header("Authorization", "Bearer " + token)

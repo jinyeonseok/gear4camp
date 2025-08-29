@@ -19,4 +19,9 @@ public class CartRequestDto {
     @Min(value = 1, message = "수량은 1개 이상이어야 합니다.")
     @Schema(description = "추가할 수량", example = "2")
     private Integer quantity;
+
+    @NotNull(message = "가격은 필수입니다.")
+    @Min(value = 1, message = "금액은 1원 이상이어야 합니다.")
+    @Schema(description = "추가할 금액", example = "10000")
+    private Long price;
 }

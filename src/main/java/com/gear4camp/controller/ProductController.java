@@ -10,11 +10,13 @@ import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/products")
@@ -31,10 +33,11 @@ public class ProductController {
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "상품 등록", description = "신규 상품을 등록합니다. 인증된 사용자만 가능합니다.")
     @PostMapping
-    public ResponseEntity<Void> createProduct(@Valid @RequestBody ProductRequestDto dto, Authentication authentication) {
+    public ResponseEntity<Map<String, Object>> createProduct(@Valid @RequestBody ProductRequestDto dto, Authentication authentication) {
         String userId = authentication.getName(); // JwtAuthenticationFilter에서 넣어준 userId
-        productService.createProduct(dto, userId);
-        return ResponseEntity.ok().build();
+
+        Map<String, Object> response = productService.createProduct(dto, userId);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     // 특정 상품 조회

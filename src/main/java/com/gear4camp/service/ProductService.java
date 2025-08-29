@@ -10,7 +10,9 @@ import com.gear4camp.mapper.ProductMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -20,8 +22,10 @@ public class ProductService {
     private final ProductMapper productMapper;
     private final UserService userService;
 
-    public void createProduct(ProductRequestDto dto, String userId) {
+    public Map<String, Object> createProduct(ProductRequestDto dto, String userId) {
         User user = userService.getByUserId(userId); // DB에서 사용자 확인 + 예외 처리
+
+        Map<String, Object> response = new HashMap<>();
 
         Product product = new Product();
         product.setName(dto.getName());
@@ -32,6 +36,10 @@ public class ProductService {
         product.setCreatedBy(user.getId());
 
         productMapper.insertProduct(product);
+
+        response.put("productId", product.getId());
+
+        return response;
     }
 
     // 특정 상품 조회

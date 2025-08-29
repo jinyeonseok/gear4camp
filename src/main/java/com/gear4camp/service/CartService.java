@@ -41,7 +41,10 @@ public class CartService {
 
         } else { // 담은 상품이 존재하지 않으면 INSERT
 
-            Long price = productMapper.findPriceById(dto.getProductId());
+//            Long price = productMapper.findPriceById(dto.getProductId());
+            long price = dto.getPrice();
+
+            System.out.println("price : " + price);
 
             Cart cart = new Cart();
             cart.setUserId(userId);

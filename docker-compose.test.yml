@@ -1,10 +1,11 @@
 services:
   mysql-test:
     image: mysql:8.0
-    container_name: mysql-test-container
-    hostname: mysql-test-container # 때때로 docker 내부 DNS가 container_name으로 안 잡힐 수 있어서 hostname을 직접 줌으로 안정
+    ######### container_namer과 hostname은 굳이 없이 서비스명으로 접근해도 된다. ######
+    #container_name: mysql-test-container
+    #hostname: mysql-test-container # 때때로 docker 내부 DNS가 container_name으로 안 잡힐 수 있어서 hostname을 직접 줌으로 안정
     ports:
-      - "3308:3306"
+      - "3307:3306" # ports는 로컬용일뿐, ci/cd에서는 내부통신으로 해결하지만 나는 로컬에서도 돌릴거기 때문에 유지
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: gear4camp_test
@@ -15,8 +16,9 @@ services:
       retries: 10
     networks:
       - test-network
-    volumes:
-      - mysql_test_data:/var/lib/mysql
+# 테스트 DB이기 때문에 불륨은 필요없다고 판단하여 제거
+#    volumes:
+#      - mysql_test_data:/var/lib/mysql
 
   app-test:
     build:
