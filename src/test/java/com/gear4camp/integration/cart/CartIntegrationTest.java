@@ -7,6 +7,8 @@ import com.gear4camp.dto.cart.CartRequestDto;
 import com.gear4camp.dto.product.ProductRequestDto;
 import com.gear4camp.integration.common.TestAuthUtils;
 import com.gear4camp.integration.common.TestAuthUtils.TokenAndUserId;
+import com.gear4camp.integration.steps.ProductSteps;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,6 +40,13 @@ class CartIntegrationTest {
     @Autowired
     private TestAuthUtils testAuthUtils;
 
+    ProductSteps productSteps;
+
+    @BeforeEach
+    void setUp() {
+        productSteps = new ProductSteps(mockMvc, objectMapper);
+    }
+
     @Test
     @DisplayName("장바구니 담기 성공")
     void addToCart_success() throws Exception {
@@ -45,36 +54,18 @@ class CartIntegrationTest {
         TokenAndUserId user = testAuthUtils.registerAndLoginRandomWithUserId();
         String token = user.getToken();
 
-        Long productId = 1L;
-        int quantity = 2;
-        long price = 10000;
+        // 상품 생성
+        long productId = productSteps.createProduct(token, "캠핑 의자", 10000);
 
-        ProductRequestDto productRequestDto = new ProductRequestDto();
-        productRequestDto.setName("캠핑 의자");
-        productRequestDto.setDescription("접이식 방수 캠핑 의자");
-        productRequestDto.setPrice(price);
-        productRequestDto.setStock(2);
-        productRequestDto.setThumbnailUrl("https://example.com/image.jpg");
-
-        MvcResult createRes = mockMvc.perform(post("/products")
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .header("Authorization", "Bearer " + token)
-                                .content(objectMapper.writeValueAsString(productRequestDto)))
-                .andExpect(status().isCreated())
-                        .andReturn();
-
-        long createdId = objectMapper.readTree(createRes.getResponse().getContentAsString())
-                .path("productId").asLong();
-
-        CartRequestDto requestDto = new CartRequestDto();
-        requestDto.setProductId(createdId);
-        requestDto.setQuantity(quantity);
-        requestDto.setPrice(price);
+        CartRequestDto dto = new CartRequestDto();
+        dto.setProductId(productId);
+        dto.setQuantity(2);
+        dto.setPrice(10000L);
 
         MvcResult result = mockMvc.perform(post("/cart")
-                        .contentType(MediaType.APPLICATION_JSON)
                         .header("Authorization", "Bearer " + token)
-                        .content(objectMapper.writeValueAsString(requestDto)))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isCreated())
                 .andReturn();
 
@@ -98,25 +89,11 @@ class CartIntegrationTest {
         TokenAndUserId user = testAuthUtils.registerAndLoginRandomWithUserId();
         String token = user.getToken();
 
-        ProductRequestDto productRequestDto = new ProductRequestDto();
-        productRequestDto.setName("캠핑 의자");
-        productRequestDto.setDescription("접이식 방수 캠핑 의자");
-        productRequestDto.setPrice(10000L);
-        productRequestDto.setStock(2);
-        productRequestDto.setThumbnailUrl("https://example.com/image.jpg");
-
-        MvcResult createRes = mockMvc.perform(post("/products")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .header("Authorization", "Bearer " + token)
-                        .content(objectMapper.writeValueAsString(productRequestDto)))
-                .andExpect(status().isCreated())
-                .andReturn();
-
-        long createdId = objectMapper.readTree(createRes.getResponse().getContentAsString())
-                .path("productId").asLong();
+        // 상품 생성
+        long productId = productSteps.createProduct(token, "캠핑 의자", 10000);
 
         CartRequestDto requestDto = new CartRequestDto();
-        requestDto.setProductId(createdId);
+        requestDto.setProductId(productId);
         requestDto.setQuantity(1);
         requestDto.setPrice(10000L);
 
@@ -163,25 +140,11 @@ class CartIntegrationTest {
         TokenAndUserId user = testAuthUtils.registerAndLoginRandomWithUserId();
         String token = user.getToken();
 
-        ProductRequestDto productRequestDto = new ProductRequestDto();
-        productRequestDto.setName("캠핑 의자");
-        productRequestDto.setDescription("접이식 방수 캠핑 의자");
-        productRequestDto.setPrice(10000L);
-        productRequestDto.setStock(2);
-        productRequestDto.setThumbnailUrl("https://example.com/image.jpg");
-
-        MvcResult createRes = mockMvc.perform(post("/products")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .header("Authorization", "Bearer " + token)
-                        .content(objectMapper.writeValueAsString(productRequestDto)))
-                .andExpect(status().isCreated())
-                .andReturn();
-
-        long createdId = objectMapper.readTree(createRes.getResponse().getContentAsString())
-                .path("productId").asLong();
+        // 상품 생성
+        long productId = productSteps.createProduct(token, "캠핑 의자", 10000);
 
         CartRequestDto requestDto = new CartRequestDto();
-        requestDto.setProductId(createdId);
+        requestDto.setProductId(productId);
         requestDto.setQuantity(3);
         requestDto.setPrice(10000L);
 
@@ -200,7 +163,7 @@ class CartIntegrationTest {
 
         JsonNode cartList = objectMapper.readTree(responseBody).get("cartList");
 
-        assertThat(cartList.get(0).get("productId").asLong()).isEqualTo(createdId);
+        assertThat(cartList.get(0).get("productId").asLong()).isEqualTo(productId);
         assertThat(cartList.get(0).get("quantity").asInt()).isEqualTo(3);
 
         System.out.println("전체 응답 JSON =\n" +
@@ -217,26 +180,12 @@ class CartIntegrationTest {
         TokenAndUserId user = testAuthUtils.registerAndLoginRandomWithUserId();
         String token = user.getToken();
 
-        ProductRequestDto productRequestDto = new ProductRequestDto();
-        productRequestDto.setName("캠핑 의자");
-        productRequestDto.setDescription("접이식 방수 캠핑 의자");
-        productRequestDto.setPrice(10000L);
-        productRequestDto.setStock(2);
-        productRequestDto.setThumbnailUrl("https://example.com/image.jpg");
-
-        MvcResult createRes = mockMvc.perform(post("/products")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .header("Authorization", "Bearer " + token)
-                        .content(objectMapper.writeValueAsString(productRequestDto)))
-                .andExpect(status().isCreated())
-                .andReturn();
-
-        long createdId = objectMapper.readTree(createRes.getResponse().getContentAsString())
-                .path("productId").asLong();
+        // 상품 생성
+        long productId = productSteps.createProduct(token, "캠핑 의자", 10000);
 
         // 장바구니에 상품 담기
         CartRequestDto requestDto = new CartRequestDto();
-        requestDto.setProductId(createdId);
+        requestDto.setProductId(productId);
         requestDto.setQuantity(1);
         requestDto.setPrice(10000L);
 
@@ -298,26 +247,12 @@ class CartIntegrationTest {
         TokenAndUserId user = testAuthUtils.registerAndLoginRandomWithUserId();
         String token = user.getToken();
 
-        ProductRequestDto productRequestDto = new ProductRequestDto();
-        productRequestDto.setName("캠핑 의자");
-        productRequestDto.setDescription("접이식 방수 캠핑 의자");
-        productRequestDto.setPrice(10000L);
-        productRequestDto.setStock(2);
-        productRequestDto.setThumbnailUrl("https://example.com/image.jpg");
-
-        MvcResult createRes = mockMvc.perform(post("/products")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .header("Authorization", "Bearer " + token)
-                        .content(objectMapper.writeValueAsString(productRequestDto)))
-                .andExpect(status().isCreated())
-                .andReturn();
-
-        long createdId = objectMapper.readTree(createRes.getResponse().getContentAsString())
-                .path("productId").asLong();
+        // 상품 생성
+        long productId = productSteps.createProduct(token, "캠핑 의자", 10000);
 
         // 장바구니에 항목 추가
         CartRequestDto requestDto = new CartRequestDto();
-        requestDto.setProductId(createdId);
+        requestDto.setProductId(productId);
         requestDto.setQuantity(3);
         requestDto.setPrice(10000L);
 
@@ -403,26 +338,12 @@ class CartIntegrationTest {
         TokenAndUserId user = testAuthUtils.registerAndLoginRandomWithUserId();
         String token = user.getToken();
 
-        ProductRequestDto productRequestDto = new ProductRequestDto();
-        productRequestDto.setName("캠핑 의자");
-        productRequestDto.setDescription("접이식 방수 캠핑 의자");
-        productRequestDto.setPrice(10000L);
-        productRequestDto.setStock(2);
-        productRequestDto.setThumbnailUrl("https://example.com/image.jpg");
-
-        MvcResult createRes = mockMvc.perform(post("/products")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .header("Authorization", "Bearer " + token)
-                        .content(objectMapper.writeValueAsString(productRequestDto)))
-                .andExpect(status().isCreated())
-                .andReturn();
-
-        long createdId = objectMapper.readTree(createRes.getResponse().getContentAsString())
-                .path("productId").asLong();
+        // 상품 생성
+        long productId = productSteps.createProduct(token, "캠핑 의자", 10000);
 
         // 장바구니 담기
         CartRequestDto requestDto = new CartRequestDto();
-        requestDto.setProductId(createdId);
+        requestDto.setProductId(productId);
         requestDto.setQuantity(1);
         requestDto.setPrice(10000L);
 
