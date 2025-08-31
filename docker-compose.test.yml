@@ -1,11 +1,9 @@
 services:
   mysql-test:
     image: mysql:8.0
-    ######### container_namer과 hostname은 굳이 없이 서비스명으로 접근해도 된다. ######
-    #container_name: mysql-test-container
-    #hostname: mysql-test-container # 때때로 docker 내부 DNS가 container_name으로 안 잡힐 수 있어서 hostname을 직접 줌으로 안정
+    # container_name/hostname 없음: 서비스명 DNS로 접근 (CI 이름충돌 방지)
     ports:
-      - "3307:3306" # ports는 로컬용일뿐, ci/cd에서는 내부통신으로 해결하지만 나는 로컬에서도 돌릴거기 때문에 유지
+      - "3307:3306" # 로컬에서 접속용; CI 내부통신에는 불필요하지만 유지해도 무방
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: gear4camp_test
@@ -16,25 +14,25 @@ services:
       retries: 30
     networks:
       - test-network
-# 테스트 DB이기 때문에 불륨은 필요없다고 판단하여 제거
-#    volumes:
-#      - mysql_test_data:/var/lib/mysql
 
   app-test:
     build:
       context: .  # Dockerfile이 있는 경로
-    container_name: spring-app-test
+#    container_name: spring-app-test -> 서비스명 사용
     depends_on:
       mysql-test:
         condition: service_healthy
     networks:
       - test-network
-    environment:
-      SPRING_PROFILES_ACTIVE: test-docker
+#    CI에서는 명령줄로 프로필을 넘기므로 굳이 박지 않음
+#    environment:
+#      SPRING_PROFILES_ACTIVE: test-docker
 
 networks:
   test-network:
     driver: bridge
 
-volumes:
-  mysql_test_data:
+# 테스트 DB는 매번 깨끗한 상태가 좋음
+# 볼륨을 쓰면 더티 데이터가 남아 테스트가 환경 의존적으로 변하기에 의도적 제거
+#volumes:
+#  mysql_test_data:
