@@ -56,11 +56,14 @@ jobs:
       #    -T: CI는 TTY가 없으므로 비대화형
       #    workers.max=1: 메모리 피크 완화(Exit 137 방지)
       #    profiles.active=test-docker: CI 전용 프로필 강제
+      #    --entrypoint ""로 Dockerfile ENTRYPOINT 무력화 ****
       - name: Run tests (CI uses test-docker profile)
         env:
           GRADLE_OPTS: "-Xmx512m -Dorg.gradle.jvmargs='-Xmx512m -XX:MaxMetaspaceSize=256m -Dfile.encoding=UTF-8'"
         run: |
-          docker compose -f docker-compose.test.yml run --rm -T app-test \
+          docker compose -f docker-compose.test.yml run --rm -T \
+            --entrypoint "" \
+            app-test \
             ./gradlew clean test --no-daemon \
             -Dspring.profiles.active=test-docker \
             -Dorg.gradle.workers.max=1
