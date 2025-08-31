@@ -61,7 +61,8 @@ jobs:
 
       # Gradle 테스트 수행 (테스트 전용)
       - name: Run tests inside Docker
-        run: docker exec spring-app-test ./gradlew clean test --no-daemon -Dspring.profiles.active=test-docker
+        run: docker compose -f docker-compose.test.yml exec -T spring-app-test ./gradlew clean test --no-daemon -Dspring.profiles.active=test-docker
+#        run: docker exec spring-app-test ./gradlew clean test --no-daemon -Dspring.profiles.active=test-docker
 
       # Docker 로그인(구글연동으로 가입하면 로그인 인식을 못해서 도커 비밀번호를 구글 비밀번호로 다시 변경하니 인식..)
       - name: Log in to Docker Hub
