@@ -10,10 +10,10 @@ services:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: gear4camp_test
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      test: [ "CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-u", "root", "-proot", "--protocol=TCP" ]
       interval: 10s
       timeout: 5s
-      retries: 10
+      retries: 30
     networks:
       - test-network
 # 테스트 DB이기 때문에 불륨은 필요없다고 판단하여 제거
