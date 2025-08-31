@@ -44,6 +44,7 @@ class CartIntegrationTest {
 
     @BeforeEach
     void setUp() {
+        // 필터체인, 시큐리티가 포함된 MockMvc 인스턴스를 사용해야 정상적인 테스트가 가능해지므로 생성자 DI로 설정
         productSteps = new ProductSteps(mockMvc, objectMapper);
     }
 

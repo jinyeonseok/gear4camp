@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gear4camp.dto.cart.CartRequestDto;
 import com.gear4camp.integration.common.TestAuthUtils;
 import com.gear4camp.integration.common.TestAuthUtils.TokenAndUserId;
+import com.gear4camp.integration.steps.ProductSteps;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,6 +40,13 @@ class OrderIntegrationTest {
     @Autowired
     private TestAuthUtils testAuthUtils;
 
+    ProductSteps productSteps;
+
+    @BeforeEach
+    void setUp() {
+        productSteps = new ProductSteps(mockMvc, objectMapper);
+    }
+
     @Test
     @DisplayName("주문 생성 → 조회 → 취소 흐름 테스트")
     void createOrder_thenRetrieveAndCancel() throws Exception {
@@ -45,12 +54,14 @@ class OrderIntegrationTest {
         TokenAndUserId user = testAuthUtils.registerAndLoginRandomWithUserId();
         String token = user.getToken();
 
-        Long productId = 1L;
+        // 상품 생성
+        long productId = productSteps.createProduct(token, "캠핑 의자", 10000);
 
         // 1. 장바구니에 상품 담기
         CartRequestDto cartDto = new CartRequestDto();
         cartDto.setProductId(productId);
         cartDto.setQuantity(1);
+        cartDto.setPrice(10000L);
 
         mockMvc.perform(post("/cart")
                         .contentType(MediaType.APPLICATION_JSON)
