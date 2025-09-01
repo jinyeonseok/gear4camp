@@ -1,3 +1,4 @@
+# .github/workflows/docker-ci.yml
 name: CI Tests with Docker (CI:test-docker / Local:test)
 
 on:
@@ -31,7 +32,6 @@ jobs:
     steps:
       # 1) 코드 체크아웃
       - name: Checkout
-        # v4도 OK. 네가 v3 쓰고 있으면 v3로 둬도 됨.
         uses: actions/checkout@v4
 
       # 2) JDK 17
@@ -47,6 +47,7 @@ jobs:
 
       # 4) Gradle 캐시(속도↑)
       - name: Cache Gradle
+        # v3/v4 아무거나 사용 가능
         uses: actions/cache@v4
         with:
           path: |
@@ -56,10 +57,16 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-gradle-
 
-      # 5) 테스트 실행 (호스트에서 실행, DB는 서비스 컨테이너)
-      #    - URL만 127.0.0.1:3306으로 덮어쓰기 -> 코드/프로퍼티 수정 불필요
+      # 5) 테스트 전 스키마 주입 (핵심 변경)
+      - name: Load schema.sql (and data.sql) into MySQL
+        run: |
+          sudo apt-get update && sudo apt-get install -y mysql-client
+          mysql -h 127.0.0.1 -uroot -proot gear4camp_test < src/test/resources/schema.sql
+
+      # 6) 테스트 실행 (호스트에서 실행, DB는 서비스 컨테이너)
       - name: Run tests (host → MySQL service)
         env:
+          # application-test-docker.properties가 127.0.0.1:3306으로 설정되어 있다면 아래 3줄은 생략 가능
           SPRING_DATASOURCE_URL: jdbc:mysql://127.0.0.1:3306/gear4camp_test?serverTimezone=UTC&characterEncoding=UTF-8
           SPRING_DATASOURCE_USERNAME: root
           SPRING_DATASOURCE_PASSWORD: root
@@ -69,9 +76,17 @@ jobs:
             -Dorg.gradle.workers.max=1 \
             -Dorg.gradle.parallel=false
 
-      # 6) 실패 시 디버그(선택)
+      # 7) 실패 시 디버그
       - name: Debug on failure
         if: failure()
         run: |
           echo "==== MySQL container logs (tail 200) ===="
           docker logs ${{ job.services.mysql.id }} --tail=200 || true
+
+      # 8) 테스트 리포트 업로드
+      - name: Upload test report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-report
+          path: build/reports/tests/test
