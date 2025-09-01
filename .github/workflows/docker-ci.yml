@@ -61,10 +61,8 @@ jobs:
       # 9) app-test 컨테이너 관점에서 DNS/TCP 연결 체크
       - name: Pre-check DNS/TCP from app-test
         run: |
-          docker compose -f docker-compose.test.yml run --rm -T --entrypoint "" app-test \
-            getent hosts mysql-test
-          docker compose -f docker-compose.test.yml run --rm -T --entrypoint "" app-test \
-            /bin/sh -lc 'timeout 3 bash -lc "</dev/tcp/mysql-test/3306" && echo OK || (echo FAIL; exit 1)'
+          docker compose -f docker-compose.test.yml exec -T mysql-test \
+          mysqladmin ping -h 127.0.0.1 -uroot -proot --protocol=TCP
 
       # 10) 실제 Gradle 테스트 실행
       - name: Run tests (CI uses test-docker profile)
@@ -73,7 +71,7 @@ jobs:
         run: |
           docker compose -f docker-compose.test.yml run --rm -T \
             --entrypoint "" \
-            -w /app \   # gradlew가 있는 경로 (Dockerfile WORKDIR와 맞춰야 함)
+            -w /app \
             app-test \
             ./gradlew clean test --no-daemon \
             -Dspring.profiles.active=test-docker \
