@@ -26,7 +26,7 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x ./gradlew
 
-      # 4) Gradle 캐시
+      # 4) Gradle 캐시(선택이지만 권장: 빌드 속도 개선)
       - name: Cache Gradle
         uses: actions/cache@v4
         with:
@@ -37,18 +37,19 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-gradle-
 
-      # 5) 테스트 제외 빌드 (테스트 컨테이너에 jar 복사용)
+      # 5) 테스트 제외 빌드(테스트 컨테이너에 jar 복사용)
       - name: Build JAR (skip tests)
         run: ./gradlew clean build -x test
 
-      # 6) 테스트용 이미지 빌드
+      # 6) 테스트용 이미지 빌드 (compose v2 사용)
       - name: Build test images
         run: docker compose -f docker-compose.test.yml build
 
-      # 7) DB만 먼저 기동 + healthcheck까지 대기
-      - name: Start DB (wait for healthy)
+      # 7) 테스트 환경용 컨테이너 실행 (MySQL + App) + healthcheck까지 대기
+      #    app-test는 compose에서 `tail -f /dev/null`로 keep-alive 상태가 되므로 exec 가능
+      - name: Start services (wait for healthy)
         run: |
-          docker compose -f docker-compose.test.yml up -d --wait mysql-test
+          docker compose -f docker-compose.test.yml up -d --wait
           docker compose -f docker-compose.test.yml ps
 
       # 8) 프로필 파일 존재 & JDBC URL 확인
@@ -58,26 +59,26 @@ jobs:
           echo "=== URL check ==="
           grep -n "spring.datasource.url=jdbc:mysql://mysql-test:3306" src/test/resources/application-test-docker.properties
 
-      # 9) app-test 컨테이너 관점에서 DNS/TCP 연결 체크
-      - name: Pre-check DNS/TCP from app-test
+      # 9) MySQL 컨테이너 준비 상태 최종 확인 (컨테이너 내부에서 TCP로 ping)
+      - name: Pre-check MySQL TCP (inside mysql-test)
         run: |
           docker compose -f docker-compose.test.yml exec -T mysql-test \
-          mysqladmin ping -h 127.0.0.1 -uroot -proot --protocol=TCP
+            mysqladmin ping -h 127.0.0.1 -uroot -proot --protocol=TCP
 
-      # 10) 실제 Gradle 테스트 실행
+      # 10) 실제 Gradle 테스트 실행 (exec 방식, CI 전용 프로필 강제)
+      #     -T: CI는 TTY가 없으므로 비대화형
+      #     workers.max=1: 메모리 피크 완화(Exit 137 방지)
+      #     profiles.active=test-docker: CI 전용 프로필 강제
       - name: Run tests (CI uses test-docker profile)
         env:
           GRADLE_OPTS: "-Xmx512m -Dorg.gradle.jvmargs='-Xmx512m -XX:MaxMetaspaceSize=256m -Dfile.encoding=UTF-8'"
         run: |
-          docker compose -f docker-compose.test.yml run --rm -T \
-            --entrypoint "" \
-            -w /app \
-            app-test \
+          docker compose -f docker-compose.test.yml exec -T app-test \
             ./gradlew clean test --no-daemon \
             -Dspring.profiles.active=test-docker \
             -Dorg.gradle.workers.max=1
 
-      # 11) 실패 시 디버그 로그 덤프
+      # 11) 실패 시 디버그 로그 덤프 (문제 추적에 도움)
       - name: Debug on failure
         if: failure()
         run: |
@@ -85,10 +86,10 @@ jobs:
           docker compose -f docker-compose.test.yml ps || true
           echo "==== mysql-test logs (tail 200) ===="
           docker compose -f docker-compose.test.yml logs mysql-test --tail=200 || true
-          echo "==== app-test logs (tail 200; run 컨테이너는 종료될 수 있음) ===="
+          echo "==== app-test logs (tail 200) ===="
           docker compose -f docker-compose.test.yml logs app-test --tail=200 || true
 
-      # 12) 정리
+      # 12) (선택) 정리: 컨테이너/네트워크/볼륨 정리
       - name: Shutdown services
         if: always()
         run: docker compose -f docker-compose.test.yml down -v
