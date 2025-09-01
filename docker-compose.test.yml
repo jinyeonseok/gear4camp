@@ -7,6 +7,7 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: gear4camp_test
+    command: ["--innodb-buffer-pool-size=64M", "--max_connections=50"] # 137에러로 인한 메모리 절감
     healthcheck:
       test: [ "CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-u", "root", "-proot", "--protocol=TCP" ]
       interval: 10s
@@ -23,6 +24,10 @@ services:
       mysql-test:
         condition: service_healthy
     command: ["tail", "-f", "/dev/null"]  # 컨테이너 살아있게 유지
+      # 👇 OOM(137) 방지: 테스트 JVM/Gradle 상한 고정
+    environment:
+        JAVA_TOOL_OPTIONS: "-Xmx512m -XX:MaxMetaspaceSize=256m"
+        GRADLE_OPTS: "-Xmx512m -Dorg.gradle.jvmargs='-Xmx512m -XX:MaxMetaspaceSize=256m -Dfile.encoding=UTF-8'"
     networks:
       - test-network
 #    CI에서는 명령줄로 프로필을 넘기므로 굳이 박지 않음

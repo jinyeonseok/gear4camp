@@ -74,9 +74,10 @@ jobs:
           GRADLE_OPTS: "-Xmx512m -Dorg.gradle.jvmargs='-Xmx512m -XX:MaxMetaspaceSize=256m -Dfile.encoding=UTF-8'"
         run: |
           docker compose -f docker-compose.test.yml exec -T app-test \
-            ./gradlew clean test --no-daemon \
+            ./gradlew test --no-daemon \
             -Dspring.profiles.active=test-docker \
-            -Dorg.gradle.workers.max=1
+            -Dorg.gradle.workers.max=1 \
+            -Dorg.gradle.parallel=false
 
       # 11) 실패 시 디버그 로그 덤프 (문제 추적에 도움)
       - name: Debug on failure
